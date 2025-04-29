@@ -1,0 +1,95 @@
+/* استایل‌های کارت‌های آمار */
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.border-right-primary {
+    border-right: 4px solid #4e73df !important;
+}
+
+.border-right-success {
+    border-right: 4px solid #1cc88a !important;
+}
+
+.border-right-info {
+    border-right: 4px solid #36b9cc !important;
+}
+
+.border-right-warning {
+    border-right: 4px solid #f6c23e !important;
+}
+
+.text-xs {
+    font-size: .7rem;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+/* استایل جداول */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-top: none;
+    border-bottom: 2px solid #e3e6f0;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #5a5c69;
+    background-color: #f8f9fc;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* استایل badge ها */
+.badge {
+    padding: 0.5em 1em;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* استایل کارت‌ها */
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.card-header h6 {
+    color: #4e73df;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* استایل لینک‌ها */
+a {
+    color: #4e73df;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #2e59d9;
+    text-decoration: underline;
+}
+
+/* استایل دکمه‌ها */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+}
+
+/* استایل آیکون‌ها */
+.bi {
+    font-size: 1.5rem;
+}
+
+/* استایل موجودی کم */
+.text-danger {
+    font-weight: 600;
+}

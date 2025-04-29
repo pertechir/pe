@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /pe/
+
+# اگر درخواست برای فایل یا دایرکتوری موجود نیست
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# همه درخواست‌ها را به index.php هدایت کن
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# جلوگیری از دسترسی مستقیم به فایل‌های PHP در پوشه‌های خاص
+RewriteRule ^(config|includes)/ - [F]
