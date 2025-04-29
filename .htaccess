@@ -1,12 +1,27 @@
 RewriteEngine On
 RewriteBase /pe/
 
-# اگر درخواست برای فایل یا دایرکتوری موجود نیست
+# اگر فایل یا پوشه وجود داشت، redirect نکن
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
-# همه درخواست‌ها را به index.php هدایت کن
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# جلوگیری از دسترسی مستقیم به فایل‌های PHP در پوشه‌های خاص
-RewriteRule ^(config|includes)/ - [F]
+# محافظت از پوشه‌های حساس
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(ini|log|sh|inc|bak)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# محافظت از فایل‌های پیکربندی
+<Files ~ "(config\.php|database\.php|\.env)$">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# نمایش ندادن ساختار پوشه‌ها
+Options -Indexes
