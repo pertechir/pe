@@ -13,7 +13,25 @@ $breadcrumbs = [
     'خانه' => SITE_URL,
     'داشبورد' => SITE_URL . '/dashboard'
 ];
+// مقداردهی اولیه متغیرها
+$today_stats = [
+    'count' => 0,
+    'total' => 0,
+    'paid_amount' => 0,
+    'pending_amount' => 0
+];
 
+$month_stats = [
+    'count' => 0,
+    'total' => 0,
+    'paid_amount' => 0
+];
+
+$low_stock_products = [];
+$pending_invoices = [];
+$upcoming_checks = [];
+$sales_chart_data = [];
+$top_products = [];
 // دریافت آمار کلی
 try {
     // آمار فروش امروز
@@ -21,34 +39,38 @@ try {
     $stmt = $pdo->prepare("
         SELECT 
             COUNT(*) as count,
-            SUM(total_amount) as total,
-            SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END) as paid_amount,
-            SUM(CASE WHEN status = 'pending' THEN total_amount ELSE 0 END) as pending_amount
+            COALESCE(SUM(total_amount), 0) as total,
+            COALESCE(SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END), 0) as paid_amount,
+            COALESCE(SUM(CASE WHEN status = 'pending' THEN total_amount ELSE 0 END), 0) as pending_amount
         FROM invoices 
         WHERE user_id = ? AND DATE(created_at) = ?
     ");
     $stmt->execute([$_SESSION['user_id'], $today]);
-    $today_stats = $stmt->fetch();
+    $today_stats = $stmt->fetch(PDO::FETCH_ASSOC) ?: $today_stats;
 
     // آمار ماه جاری
     $first_day_of_month = date('Y-m-01');
     $stmt = $pdo->prepare("
         SELECT 
             COUNT(*) as count,
-            SUM(total_amount) as total,
-            SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END) as paid_amount
+            COALESCE(SUM(total_amount), 0) as total,
+            COALESCE(SUM(CASE WHEN status = 'paid' THEN total_amount ELSE 0 END), 0) as paid_amount
         FROM invoices 
         WHERE user_id = ? AND DATE(created_at) >= ?
     ");
     $stmt->execute([$_SESSION['user_id'], $first_day_of_month]);
-    $month_stats = $stmt->fetch();
+    $month_stats = $stmt->fetch(PDO::FETCH_ASSOC) ?: $month_stats;
 
     // محصولات کم موجود
     $stmt = $pdo->prepare("
         SELECT 
             p.*,
             c.name as category_name,
-            (SELECT SUM(quantity) FROM invoice_items WHERE product_id = p.id) as total_sold
+            COALESCE((
+                SELECT SUM(quantity) 
+                FROM invoice_items 
+                WHERE product_id = p.id
+            ), 0) as total_sold
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.id
         WHERE p.user_id = ? 
@@ -58,7 +80,7 @@ try {
         LIMIT 10
     ");
     $stmt->execute([$_SESSION['user_id']]);
-    $low_stock_products = $stmt->fetchAll();
+    $low_stock_products = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
     // فاکتورهای معوق
     $stmt = $pdo->prepare("
@@ -67,7 +89,11 @@ try {
             c.first_name,
             c.last_name,
             c.phone,
-            (SELECT SUM(paid_amount) FROM payments WHERE invoice_id = i.id) as paid_amount
+            COALESCE((
+                SELECT SUM(paid_amount) 
+                FROM payments 
+                WHERE invoice_id = i.id
+            ), 0) as paid_amount
         FROM invoices i
         JOIN customers c ON i.customer_id = c.id
         WHERE i.user_id = ? 
@@ -77,7 +103,7 @@ try {
         LIMIT 10
     ");
     $stmt->execute([$_SESSION['user_id']]);
-    $pending_invoices = $stmt->fetchAll();
+    $pending_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
     // چک‌های سررسید
     $stmt = $pdo->prepare("
@@ -94,13 +120,13 @@ try {
         LIMIT 10
     ");
     $stmt->execute([$_SESSION['user_id']]);
-    $upcoming_checks = $stmt->fetchAll();
+    $upcoming_checks = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
     // نمودار فروش 6 ماه اخیر
     $stmt = $pdo->prepare("
         SELECT 
             DATE_FORMAT(created_at, '%Y-%m') as month,
-            SUM(total_amount) as total_amount,
+            COALESCE(SUM(total_amount), 0) as total_amount,
             COUNT(*) as count
         FROM invoices
         WHERE user_id = ?
@@ -109,14 +135,14 @@ try {
         ORDER BY month ASC
     ");
     $stmt->execute([$_SESSION['user_id']]);
-    $sales_chart_data = $stmt->fetchAll();
+    $sales_chart_data = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
     // محصولات پرفروش
     $stmt = $pdo->prepare("
         SELECT 
             p.name,
-            SUM(ii.quantity) as total_quantity,
-            SUM(ii.quantity * ii.price) as total_amount
+            COALESCE(SUM(ii.quantity), 0) as total_quantity,
+            COALESCE(SUM(ii.quantity * ii.price), 0) as total_amount
         FROM invoice_items ii
         JOIN products p ON ii.product_id = p.id
         JOIN invoices i ON ii.invoice_id = i.id
@@ -127,7 +153,7 @@ try {
         LIMIT 5
     ");
     $stmt->execute([$_SESSION['user_id']]);
-    $top_products = $stmt->fetchAll();
+    $top_products = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
 } catch (PDOException $e) {
     error_log($e->getMessage());
