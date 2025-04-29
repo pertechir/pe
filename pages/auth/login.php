@@ -2,39 +2,107 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../includes/functions.php';
 
-// اگر کاربر قبلاً لاگین کرده است
+// اگر کاربر قبلاً لاگین کرده است، به داشبورد هدایت شود
 if (is_logged_in()) {
     redirect(SITE_URL . '/dashboard');
 }
 
+$errors = [];
+$success = '';
+
 // پردازش فرم ورود
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
+    $email = trim(strtolower($_POST['email'] ?? ''));
     $password = $_POST['password'] ?? '';
     $remember = isset($_POST['remember']);
 
-    try {
-        $stmt = $pdo->prepare("SELECT id, first_name, last_name, password, role FROM users WHERE email = ? AND is_active = 1");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
+    // اعتبارسنجی ایمیل
+    if (empty($email)) {
+        $errors['email'] = 'ایمیل الزامی است';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'ایمیل معتبر نیست';
+    }
 
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
-            $_SESSION['user_role'] = $user['role'];
+    // اعتبارسنجی رمز عبور
+    if (empty($password)) {
+        $errors['password'] = 'رمز عبور الزامی است';
+    }
 
-            if ($remember) {
-                $token = bin2hex(random_bytes(32));
-                setcookie('remember_token', $token, time() + 30 * 24 * 60 * 60, '/');
+    // اگر خطایی وجود نداشت
+    if (empty($errors)) {
+        try {
+            // بررسی اطلاعات کاربر
+            $stmt = $pdo->prepare("
+                SELECT id, name, family, email, password, is_active, email_verified_at
+                FROM users 
+                WHERE email = ?
+            ");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($password, $user['password'])) {
+                // بررسی فعال بودن حساب کاربری
+                if (!$user['is_active']) {
+                    $errors['general'] = 'حساب کاربری شما غیرفعال است';
+                }
+                // بررسی تایید ایمیل
+                elseif (!$user['email_verified_at']) {
+                    $errors['general'] = 'لطفاً ایمیل خود را تایید کنید';
+                }
+                else {
+                    // ذخیره اطلاعات در سشن
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_name'] = $user['name'];
+                    $_SESSION['user_family'] = $user['family'];
+                    $_SESSION['user_email'] = $user['email'];
+
+                    // اگر گزینه مرا به خاطر بسپار انتخاب شده باشد
+                    if ($remember) {
+                        $token = bin2hex(random_bytes(32));
+                        $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
+
+                        $stmt = $pdo->prepare("
+                            UPDATE users 
+                            SET remember_token = ?, updated_at = NOW() 
+                            WHERE id = ?
+                        ");
+                        $stmt->execute([$token, $user['id']]);
+
+                        // ذخیره توکن در کوکی
+                        setcookie('remember_token', $token, strtotime('+30 days'), '/', '', true, true);
+                    }
+
+                    // ثبت لاگ ورود
+                    $stmt = $pdo->prepare("
+                        INSERT INTO user_logs (user_id, action, ip_address, user_agent, created_at)
+                        VALUES (?, 'login', ?, ?, NOW())
+                    ");
+                    $stmt->execute([
+                        $user['id'],
+                        $_SERVER['REMOTE_ADDR'],
+                        $_SERVER['HTTP_USER_AGENT']
+                    ]);
+
+                    // بروزرسانی آخرین ورود
+                    $stmt = $pdo->prepare("
+                        UPDATE users 
+                        SET last_login_at = NOW(), 
+                            last_login_ip = ?,
+                            updated_at = NOW()
+                        WHERE id = ?
+                    ");
+                    $stmt->execute([$_SERVER['REMOTE_ADDR'], $user['id']]);
+
+                    // انتقال به داشبورد
+                    redirect(SITE_URL . '/dashboard');
+                }
+            } else {
+                $errors['general'] = 'ایمیل یا رمز عبور اشتباه است';
             }
-
-            redirect(SITE_URL . '/dashboard');
-        } else {
-            $error = 'ایمیل یا رمز عبور اشتباه است';
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            $errors['general'] = 'خطا در ورود به سیستم';
         }
-    } catch (PDOException $e) {
-        error_log($e->getMessage());
-        $error = 'خطا در ورود به سیستم';
     }
 }
 ?>
@@ -45,57 +113,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ورود به حسابینو</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
-    <link href="<?php echo SITE_URL; ?>/assets/css/auth.css" rel="stylesheet">
+
+    <?php if (!empty($errors)): ?>
+        <meta name="error-message" content="<?php echo htmlspecialchars(implode(', ', $errors)); ?>">
+    <?php endif; ?>
+
+    <?php if (!empty($_SESSION['success_message'])): ?>
+        <meta name="success-message" content="<?php echo htmlspecialchars($_SESSION['success_message']); ?>">
+        <?php unset($_SESSION['success_message']); ?>
+    <?php endif; ?>
+    
+    <!-- فونت‌ها -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    
+    <!-- استایل‌ها -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/login.css">
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-lg-5 col-md-7">
-                <div class="text-center mb-4">
-                    <img src="<?php echo SITE_URL; ?>/assets/img/logo.png" alt="حسابینو" class="img-fluid mb-3" style="max-width: 150px;">
-                    <h2 class="mb-0">ورود به حسابینو</h2>
-                </div>
-                
-                <div class="card shadow-sm">
-                    <div class="card-body p-4">
-                        <form method="POST" class="needs-validation" novalidate>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">ایمیل</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                                <div class="invalid-feedback">لطفاً ایمیل خود را وارد کنید</div>
-                            </div>
+<body>
+    <!-- لودر -->
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
 
-                            <div class="mb-3">
-                                <label for="password" class="form-label">رمز عبور</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                <div class="invalid-feedback">لطفاً رمز عبور خود را وارد کنید</div>
-                            </div>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="<?php echo SITE_URL; ?>/assets/img/logo.png" alt="لوگو" class="login-logo">
+                <h1 class="login-title">ورود به حسابینو</h1>
+                <p class="mb-0">به سیستم مدیریت مالی حسابینو خوش آمدید</p>
+            </div>
 
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                                    <label class="form-check-label" for="remember">مرا به خاطر بسپار</label>
-                                </div>
-                                <a href="<?php echo SITE_URL; ?>/auth/forgot-password" class="text-decoration-none">فراموشی رمز عبور</a>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100 mb-3">ورود</button>
-                            
-                            <div class="text-center">
-                                <span>حساب کاربری ندارید؟</span>
-                                <a href="<?php echo SITE_URL; ?>/auth/register" class="text-decoration-none">ثبت‌نام کنید</a>
-                            </div>
-                        </form>
+            <div class="login-content">
+                <form id="loginForm" method="POST" class="needs-validation" novalidate>
+                    <div class="form-floating mb-4">
+                        <input type="email" class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>"
+                               id="email" name="email" placeholder="ایمیل"
+                               value="<?php echo $_POST['email'] ?? ''; ?>" required>
+                        <label for="email">
+                            <i class="bi bi-envelope-fill me-2"></i>
+                            ایمیل
+                        </label>
+                        <?php if (isset($errors['email'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['email']; ?></div>
+                        <?php endif; ?>
                     </div>
-                </div>
+
+                    <div class="form-floating mb-4">
+                        <input type="password" class="form-control <?php echo isset($errors['password']) ? 'is-invalid' : ''; ?>"
+                               id="password" name="password" placeholder="رمز عبور" required>
+                        <label for="password">
+                            <i class="bi bi-key-fill me-2"></i>
+                            رمز عبور
+                        </label>
+                        <button type="button" class="password-toggle" id="passwordToggle">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                        <?php if (isset($errors['password'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['password']; ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-auto">
+                            <div class="form-check remember-me">
+                                <input type="checkbox" class="form-check-input" id="remember" name="remember"
+                                       <?php echo isset($_POST['remember']) ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="remember">مرا به خاطر بسپار</label>
+                            </div>
+                        </div>
+                        <div class="col text-end">
+                            <a href="<?php echo SITE_URL; ?>/auth/forgot-password" class="text-decoration-none">
+                                فراموشی رمز عبور؟
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-left me-2"></i>
+                            ورود به حساب
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="login-footer">
+                <p class="mb-0">
+                    حساب کاربری ندارید؟
+                    <a href="<?php echo SITE_URL; ?>/auth/register">ثبت‌نام کنید</a>
+                </p>
             </div>
         </div>
     </div>
 
+    <!-- اسکریپت‌ها -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
-    <script src="<?php echo SITE_URL; ?>/assets/js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="<?php echo SITE_URL; ?>/assets/js/login.js"></script>
 </body>
 </html>

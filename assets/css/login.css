@@ -1,0 +1,286 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --danger-color: #e74c3c;
+    --light-color: #ecf0f1;
+    --dark-color: #2c3e50;
+    --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    --card-border-radius: 20px;
+    --input-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'IRANSans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    perspective: 1000px;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(217deg, rgba(255,0,0,.1), rgba(255,0,0,0) 70.71%),
+        linear-gradient(127deg, rgba(0,255,0,.1), rgba(0,255,0,0) 70.71%),
+        linear-gradient(336deg, rgba(0,0,255,.1), rgba(0,0,255,0) 70.71%);
+    pointer-events: none;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    margin: auto;
+    transform-style: preserve-3d;
+    animation: container-appear 0.5s ease-out forwards;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    transform-style: preserve-3d;
+    transition: transform 0.5s ease;
+}
+
+.login-card:hover {
+    transform: translateY(-5px) rotateX(5deg);
+}
+
+.login-header {
+    background: var(--accent-color);
+    padding: 30px;
+    text-align: center;
+    color: white;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: translateZ(50px);
+}
+
+.login-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(45deg, rgba(255,255,255,.1) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,.1) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,.1) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.1) 75%);
+    background-size: 20px 20px;
+    opacity: 0.3;
+}
+
+.login-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+    transform: translateZ(30px);
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+}
+
+.login-title {
+    font-size: 1.8rem;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    transform: translateZ(20px);
+}
+
+.login-content {
+    padding: 40px;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.form-floating {
+    margin-bottom: 20px;
+    transform-style: preserve-3d;
+}
+
+.form-floating > label {
+    padding: 1rem 0.75rem;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.form-control {
+    height: 55px;
+    padding: 1rem 0.75rem;
+    font-size: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--input-shadow);
+    transition: all 0.3s ease;
+    transform: translateZ(10px);
+}
+
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+    transform: translateZ(20px);
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    opacity: .65;
+    transform: scale(.85) translateY(-0.75rem) translateX(0.15rem) translateZ(30px);
+    color: var(--accent-color);
+}
+
+.btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    position: relative;
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    border: none;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    transform: translateZ(20px);
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+    transform: translateZ(30px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateZ(10px);
+}
+
+.password-toggle {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%) translateZ(20px);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 10;
+}
+
+.password-toggle:hover {
+    color: var(--accent-color);
+}
+
+.remember-me {
+    transform-style: preserve-3d;
+}
+
+.form-check-input {
+    border-color: #ddd;
+    transform: translateZ(10px);
+}
+
+.form-check-input:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    transform: translateZ(15px);
+}
+
+.form-check-label {
+    color: #666;
+    transform: translateZ(10px);
+}
+
+.login-footer {
+    text-align: center;
+    padding: 20px 40px;
+    background: rgba(236, 240, 241, 0.5);
+    transform-style: preserve-3d;
+}
+
+.login-footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    transform: translateZ(10px);
+    display: inline-block;
+}
+
+.login-footer a:hover {
+    color: #2980b9;
+    transform: translateZ(15px);
+}
+
+/* انیمیشن‌ها */
+@keyframes container-appear {
+    from {
+        opacity: 0;
+        transform: translateY(20px) rotateX(-5deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+    }
+}
+
+/* رسپانسیو */
+@media (max-width: 576px) {
+    .login-container {
+        margin: 10px;
+    }
+
+    .login-content {
+        padding: 20px;
+    }
+}
+
+/* لودر */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #fff;
+    border-radius: 50%;
+    border-top-color: var(--accent-color);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
