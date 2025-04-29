@@ -82,3 +82,16 @@ function get_absolute_path($path) {
     }
     return BASE_PATH . '/' . ltrim($path, '/');
 }
+function get_user_avatar($user_id) {
+    // این تابع باید آدرس تصویر کاربر را برگرداند
+    // فعلاً یک تصویر پیش‌فرض برمی‌گردانیم
+    return SITE_URL . '/assets/img/default-avatar.png';
+}
+
+function get_user_role_name($role) {
+    $roles = [
+        'admin' => 'مدیر سیستم',
+        'user' => 'کاربر عادی'
+    ];
+    return $roles[$role] ?? 'کاربر';
+}

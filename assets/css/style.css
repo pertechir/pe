@@ -1,0 +1,177 @@
+/* تنظیمات کلی */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f1c40f;
+    --info-color: #3498db;
+    --success-color: #2ecc71;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --gray-color: #95a5a6;
+}
+
+body {
+    font-family: "Vazirmatn", system-ui, -apple-system, "Segoe UI", "Ubuntu", sans-serif;
+    background-color: #f8f9fa;
+    color: var(--dark-color);
+}
+
+/* هدر مدیریت */
+.admin-header {
+    background-color: #fff;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1rem;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+}
+
+.admin-header .navbar-brand img {
+    height: 35px;
+}
+
+/* دکمه تاگل سایدبار */
+#sidebarToggle {
+    padding: 0.25rem 0.5rem;
+    font-size: 1.25rem;
+    color: var(--dark-color);
+    background: transparent;
+    border: none;
+}
+
+#sidebarToggle:hover {
+    color: var(--primary-color);
+}
+
+/* فرم جستجو */
+.search-form .form-control {
+    border-radius: 20px;
+    padding-right: 2.5rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.search-form .btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    border: none;
+    background: transparent;
+    color: var(--gray-color);
+}
+
+/* اعلان‌ها */
+.notifications-dropdown {
+    width: 300px;
+    padding: 0;
+}
+
+.notifications-header {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notifications-body {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s ease;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    background-color: var(--danger-color);
+    color: #fff;
+    border-radius: 10px;
+}
+
+.notifications-footer {
+    padding: 0.75rem;
+    text-align: center;
+    border-top: 1px solid #eee;
+}
+
+/* منوی کاربر */
+.user-dropdown {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-left: 0.5rem;
+}
+
+.dropdown-header {
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+/* محتوای اصلی */
+.wrapper {
+    margin-top: 56px; /* ارتفاع هدر */
+    min-height: calc(100vh - 56px);
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    transition: margin-right 0.3s ease;
+}
+
+/* نوار بالای محتوا */
+.content-header {
+    margin-bottom: 2rem;
+}
+
+.content-header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+}
+
+/* حالت رسپانسیو */
+@media (max-width: 768px) {
+    .search-form {
+        display: none !important;
+    }
+
+    .notifications-dropdown {
+        width: 280px;
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+}

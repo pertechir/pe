@@ -1,0 +1,29 @@
+@font-face {
+    font-family: 'Anjoman';
+    src: url('../fonts/anjoman/AnjomanMax-Regular.eot');
+    src: url('../fonts/anjoman/AnjomanMax-Regular.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/anjoman/AnjomanMax-Regular.woff2') format('woff2'),
+         url('../fonts/anjoman/AnjomanMax-Regular.woff') format('woff'),
+         url('../fonts/anjoman/AnjomanMax-Regular.ttf') format('truetype'),
+         url('../fonts/anjoman/AnjomanMax-Regular.svg#AnjomanMax-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Anjoman';
+    src: url('../fonts/anjoman/AnjomanMax-Medium.eot');
+    src: url('../fonts/anjoman/AnjomanMax-Medium.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/anjoman/AnjomanMax-Medium.woff2') format('woff2'),
+         url('../fonts/anjoman/AnjomanMax-Medium.woff') format('woff'),
+         url('../fonts/anjoman/AnjomanMax-Medium.ttf') format('truetype'),
+         url('../fonts/anjoman/AnjomanMax-Medium.svg#AnjomanMax-Medium') format('svg');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    font-family: 'Anjoman', system-ui, -apple-system, sans-serif;
+}
