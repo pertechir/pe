@@ -1,70 +1,213 @@
+/* ویژگی‌های اصلی */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --danger-color: #e74c3c;
+    --light-color: #ecf0f1;
+    --dark-color: #2c3e50;
+    --background-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+/* استایل‌های عمومی */
 body {
-    background-color: #f8f9fa;
-    font-family: Vazir, Tahoma, sans-serif;
+    font-family: 'IRANSans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--background-gradient);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 40px 0;
+    position: relative;
+    overflow-x: hidden;
 }
 
-.card {
-    border: none;
-    border-radius: 15px;
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../img/pattern.svg');
+    background-size: cover;
+    opacity: 0.1;
+    z-index: -1;
 }
 
-.card-header {
-    border-radius: 15px 15px 0 0 !important;
+/* کارت ثبت‌نام */
+.register-card {
+    background-color: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
 }
 
+.register-header {
+    background: var(--accent-color);
+    padding: 30px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
+                      linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%),
+                      linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    opacity: 0.3;
+}
+
+/* مراحل ثبت‌نام */
+.register-steps {
+    display: flex;
+    justify-content: center;
+    margin: -20px 0 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    margin: 0 15px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--light-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--dark-color);
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+.step-item.active .step-number {
+    background: var(--accent-color);
+    color: white;
+}
+
+.step-title {
+    font-size: 0.9rem;
+    color: var(--dark-color);
+}
+
+/* فرم‌ها */
 .form-control {
-    border-radius: 8px;
-    padding: 10px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
 }
 
 .form-control:focus {
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
 }
 
+.input-group-text {
+    border: none;
+    background: none;
+    color: var(--dark-color);
+}
+
+/* نوع کسب و کار */
+.business-type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.business-type-item {
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.business-type-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-color);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
+}
+
+.business-type-item.selected {
+    border-color: var(--accent-color);
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.business-type-icon {
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    margin-bottom: 15px;
+}
+
+/* دکمه‌ها */
 .btn {
-    padding: 10px 20px;
-    border-radius: 8px;
+    padding: 12px 25px;
+    border-radius: 10px;
     font-weight: 500;
+    transition: all 0.3s ease;
 }
 
 .btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+    background: var(--accent-color);
+    border: none;
 }
 
 .btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
+    background: #2980b9;
+    transform: translateY(-2px);
 }
 
-.invalid-feedback {
-    font-size: 0.875rem;
-    color: #dc3545;
+/* افکت‌های متحرک */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-a {
-    color: #0d6efd;
-    text-decoration: none;
+.form-step {
+    animation: fadeIn 0.5s ease forwards;
 }
 
-a:hover {
-    color: #0a58ca;
-    text-decoration: underline;
-}
+/* رسپانسیو */
+@media (max-width: 768px) {
+    .register-card {
+        margin: 15px;
+    }
 
-.form-label {
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
+    .register-steps {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0 20px;
+    }
 
-/* اضافه کردن فونت وزیر */
-@font-face {
-    font-family: Vazir;
-    src: url('../fonts/Vazir.eot');
-    src: url('../fonts/Vazir.eot?#iefix') format('embedded-opentype'),
-         url('../fonts/Vazir.woff2') format('woff2'),
-         url('../fonts/Vazir.woff') format('woff'),
-         url('../fonts/Vazir.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
+    .step-item {
+        margin: 10px 0;
+    }
+
+    .business-type-grid {
+        grid-template-columns: 1fr;
+    }
 }
